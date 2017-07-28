@@ -65,7 +65,6 @@ func main() {
 	if *verbose == true {
 		log.SetLevel(log.DebugLevel)
 	}
-	parsetemplate(*intemplate)
 	data, err := parsetemplate(*intemplate)
 	check(err)
 	writeFile(data, *outfile)
