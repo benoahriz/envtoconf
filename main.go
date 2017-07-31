@@ -41,6 +41,9 @@ func writeFile(data *bytes.Buffer, outfile string) {
 		return
 	}
 	err = out.Sync()
+	if err != nil {
+		log.Fatalf("%s\n", err)
+	}
 	return
 }
 
