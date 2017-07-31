@@ -24,7 +24,9 @@ func TestParsetemplate(t *testing.T) {
 		log.Printf("File is: %s\n", file)
 
 		data, err := parsetemplate(file)
-		check(err)
+		if err != nil {
+			log.Fatalf("%s\n", err)
+		}
 		So(data, ShouldHaveSameTypeAs, new(bytes.Buffer))
 		So(data.String(), ShouldContainSubstring, `bar`)
 	})

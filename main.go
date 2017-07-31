@@ -18,25 +18,24 @@ var (
 	verbose    = kingpin.Flag("verbose", "Produce verbose output").Short('v').Default("false").Bool()
 )
 
-func check(e error) {
-	if e != nil {
-		log.Fatalf("%s\n", e)
-		panic(e)
-	}
-}
-
 func writeFile(data *bytes.Buffer, outfile string) {
 	pr, pw := io.Pipe()
 	go func() {
 		defer pw.Close()
 		_, err := io.Copy(pw, data)
-		check(err)
+		if err != nil {
+			log.Fatalf("%s\n", err)
+		}
 	}()
 	out, err := os.Create(outfile)
-	check(err)
+	if err != nil {
+		log.Fatalf("%s\n", err)
+	}
 	defer func() {
 		cerr := out.Close()
-		check(cerr)
+		if cerr != nil {
+			log.Fatalf("%s\n", cerr)
+		}
 	}()
 	if _, err = io.Copy(out, pr); err != nil {
 		return
@@ -47,14 +46,20 @@ func writeFile(data *bytes.Buffer, outfile string) {
 
 func parsetemplate(infile string) (b *bytes.Buffer, err error) {
 	if _, err := os.Stat(infile); !os.IsNotExist(err) {
-		check(err)
+		if err != nil {
+			log.Fatalf("%s\n", err)
+		}
 	}
 	tpl, err := template.New(infile).Funcs(sprig.TxtFuncMap()).ParseFiles(infile)
-	check(err)
+	if err != nil {
+		log.Fatalf("%s\n", err)
+	}
 	b = new(bytes.Buffer)
 	err = tpl.ExecuteTemplate(b, filepath.Base(infile), nil)
 	log.Debugln(b.String())
-	check(err)
+	if err != nil {
+		log.Fatalf("%s\n", err)
+	}
 	return b, err
 }
 
@@ -66,6 +71,8 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 	data, err := parsetemplate(*intemplate)
-	check(err)
+	if err != nil {
+		log.Fatalf("%s\n", err)
+	}
 	writeFile(data, *outfile)
 }
